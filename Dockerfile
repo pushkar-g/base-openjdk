@@ -1,4 +1,4 @@
-FROM openjdk:8u151-jre-alpine3.7
+FROM openjdk:8u171-jre-alpine3.7
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
