@@ -16,7 +16,7 @@ docker image ls
 
 ## To create an image
 ```bash
-docker build -t="8u151-jre-alpine3.7" .
+docker build -t="8u171-jre-alpine3.7" .
 ```
 
 ## To tag an image
@@ -33,7 +33,7 @@ docker login
 ```
 
 ```bash
-docker push bncprojects/openjdk:8u151-jre-alpine3.7
+docker push bncprojects/openjdk:8u171-jre-alpine3.7
 ```
 
 ## Or just run the build script
@@ -43,11 +43,16 @@ docker push bncprojects/openjdk:8u151-jre-alpine3.7
 
 ## Then update the docker images to use the new image
 ```dockerfile
-FROM bncprojects/openjdk:8u151-jre-alpine3.7
+FROM bncprojects/openjdk:8u171-jre-alpine3.7
 ```
 
 ## Or to run the image image
 ```dockerfile
-docker pull bncprojects/openjdk:8u151-jre-alpine3.7
+docker pull bncprojects/openjdk:8u171-jre-alpine3.7
 ```
 
+# GLIBC image
+Since Alpine ships without glibc, we have put together an image with glibc added in. This is specifically for use with AWS libraries that are built with C libraries with GLIBC dependencies.
+```dockerfile
+FROM bncprojects/openjdk:8u171-jre-alpine3.7-glibc
+```
