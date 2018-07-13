@@ -1,0 +1,28 @@
+sudo: required
+language: minimal
+services:
+- docker
+env:
+  global:
+  - REPO=bncprojects/openjdk
+  - JAVA_VERSION=8u171-jre-alpine3.7
+  - secure: wpQnGiBYpQ3LQjsGi+WLCC5/b0CQcogBIOs0gaEsWbtDh9vrqOd1pxY4iEsAci7SGXcGoa2LalHpEIRoUyBxABL1OFhZGLP6TmEXaKJZNspzKFcKe/BqHdvXBiIK9I38woiVGsVRNa6Vie2Ppkw2kuq0/h2DxXQxPsYfF0bgYav+0hNHoEpYn2hG6RJV/OdcMd9KHpzRtrSYx3m3WQRe5v7bO7/c3n6Hm+qvmRYsHS7SeVTKZck6S/L/isGmQe2j3EP8KRy2slO7wbfX+N6/qNj1B85AUEVoACOWd2/rbfAYc8eo8Z1ocwOlru7nalWzWWXJDDQ7KMMO8jZl569EOP7qCzsaMwg8JMDgf/YP4GIt8M7pCG+2ilkYsB2lHdpDQ8HUe2sVzu7dCID9j1B04c+2dZ1YChd53InaEPVUZ4m+4ADFaLMoR+AntQuGsV+5Rzwlux7MNJOvzfKZjWB4PUGekOgphNNd6CL/zmq1N8hPF4RvIBFlNEWUb1z/uQWTk+tHw8oJNVVP2uRyXbjOCgYBhWL2nOQl4WmyHR5VqlarqdDU9AfAQbSIbgQcI7azr1dgbB1ix1Ox8d6AmLQDpJk09RX6ajm9u9OW4qdmBOqzFzoG1vD/Tq8KiFI+6ymHLU9KJIGC3J0/iOq3SgBLSff7GmPiq3+L2UX4G+tJKQI=
+  - secure: Jqw4Z2PnnWIISSgvQVFzq2cSSuc/8s0DHFA5HC50LmxZm+jsLNhoI6e4el33Ms82LreSnF8YTvxU/Qaydgo/3nIv3Phb/+GzSLD3V9XtQ9qk1xo3gpBXMUyI3X69sLFvjsCI/PQFy5tn68JV/C7eZwsfyjgZCe0nt2BMQb+hryg8s4Qa0he2NPZlfrzP9/JnaggUicG9bh02fIVPwlH2PcBHAhQVRGKkJM9sogOXiRqs36601RzyGHVnrUOjVuPVIJVvQJ5LuDOKmqMBXuoaDe/sQy6urO6m/Rla3L5+4cvzsoO4VqBbBmNa4onFd4uWLhNFddKzkNL13DSgJa+3H6PetZpgPkq9chlufw1x1EM44uN3vkoEYKR4EeKAUW/v55Wp+iYMmAaho5pwjm6WR5GRzUt/+XYRNyitxhp/3Dq9OKpjbQJi4lqjE/pIgAq52NBy3SuRK1jZIJ8UW5+BJoXmUsm4EvbZPiwUI8Vq7koKVJgpMRW07AYbgvIUyPwP/CEr0Mho09VDC7EaZbwDThjL6Ql/DIh9QtH3VI+zRGbDL4qa0gZRg4Q0GZRJTrOSATWQbEwZwmXa6Lks1yvmx8VdQGrFQkYNc+XRPsmfXtdlmrmNh5EGIebKwnz6bPnSV5H5PWirOij1rq/Ium7/AQQlsfdJXgfAWgCdZUkK4ug=
+branches:
+  only:
+  - master
+before_script:
+- export TAG=`if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "master"
+  ]]; then echo "latest"; else echo ${TRAVIS_PULL_REQUEST_BRANCH#*/}; fi`
+- export TAGGLIBC=${TAG}-glibc
+script:
+- docker build -t $REPO:$TAG -f Dockerfile .
+- docker build -t $REPO:$TAGGLIBC -f Dockerfile-withGlibc .
+after_success:
+- docker login -u $DOCKER_USER -p $DOCKER_PASS
+- docker push $REPO:$TAG
+- docker push $REPO:$TAGGLIBC
+- if [[ $TRAVIS_PULL_REQUEST == "false" ]] && [[ $TRAVIS_BRANCH == "master" ]]; then
+  docker tag $REPO:$TAG $REPO:$JAVA_VERSION; docker tag $REPO:$TAG $REPO:${JAVA_VERSION}-glibc;
+  docker push $REPO:$JAVA_VERSION; docker push $REPO:${JAVA_VERSION}-glibc;
+  fi
